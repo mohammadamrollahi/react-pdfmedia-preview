@@ -2,12 +2,22 @@ import { useState } from "react";
 import "./App.css";
 import { DialogProvider } from "./components/dialog/DialogProvider";
 import { Dialog } from "./components/dialog/Dialog";
+import Preview from "./components/Preview/Preview";
+import { Document, Page } from "react-pdf";
 
 function App() {
   const [open, setOpen] = useState(false);
+  const [numPages, setNumPages] = useState<number>();
+  const [pageNumber, setPageNumber] = useState<number>(1);
+
+  function onDocumentLoadSuccess({ numPages }: { numPages: number }): void {
+    setNumPages(numPages);
+  }
+
   return (
     <>
-      <DialogProvider>
+      <button onClick={() => setOpen(true)}>open dilaog</button>
+      {/* <DialogProvider>
         <button
           onClick={() => setOpen(true)}
           className="px-4 py-2 bg-blue-500 text-black rounded cursor-pointer"
@@ -25,7 +35,21 @@ function App() {
             Close
           </button>
         </Dialog>
-      </DialogProvider>
+      </DialogProvider> */}
+      <Preview
+        open={open}
+        setOpen={setOpen}
+        url="https://apollo.omaxplatform.com/app/api/v1/buckets/amian/files/46a4c7ab-fa05-40f7-a86e-417bf6d0670c.pdf"
+      />
+      {/* <Document
+        file={
+          "https://apollo.omaxplatform.com/app/api/v1/buckets/amian/files/46a4c7ab-fa05-40f7-a86e-417bf6d0670c.pdf"
+        }
+        onLoadSuccess={onDocumentLoadSuccess}
+      >
+        <Page pageNumber={pageNumber} />
+
+      </Document> */}
     </>
   );
 }

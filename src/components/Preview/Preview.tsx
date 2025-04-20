@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import clsx from "clsx";
-import { Document, Page } from "react-pdf";
+import { Document } from "react-pdf";
 import { PageWithObserver } from "./PdfPreviewPageWithObserver";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
@@ -79,7 +79,7 @@ const Preview = ({ url, open, setOpen, downloadButtonClassName }: Props) => {
     <Dialog
       open={open}
       setOpen={handleOpen}
-      className="bg-transparent shadow-none flex justify-center items-center !m-0 max-h-screen overflow-hidden"
+      className="!bg-transparent shadow-none flex justify-center items-center !m-0 max-h-screen overflow-hidden"
     >
       {/* <DialogBody className={clsx("p-0 h-screen no-scrollbar flex items-center justify-center")}> */}
       <>
@@ -102,7 +102,7 @@ const Preview = ({ url, open, setOpen, downloadButtonClassName }: Props) => {
               onLoadSuccess={onDocumentLoadSuccess}
               loading={<p className="p-2 text-white">در حال بارگذاری...</p>}
             >
-              {Array.from(new Array(numPages), (el, index) => (
+              {Array.from(new Array(numPages), (_, index) => (
                 <PageWithObserver
                   key={`page_${index + 1}`}
                   pageNumber={index + 1}
@@ -122,7 +122,7 @@ const Preview = ({ url, open, setOpen, downloadButtonClassName }: Props) => {
           isImage
             ? "w-[175px] right-[calc(50%-87.5px)]"
             : "right-[calc(50%-200px)] w-[400px]",
-          "fixed bottom-2  flex items-center bg-neutral-5 opacity-95  rounded-3xl  px-6 py-4 justify-between transition-opacity duration-500 z-50"
+          "fixed bottom-2  flex items-center bg-[#53586266] opacity-95  rounded-3xl  px-6 py-4 justify-between transition-opacity duration-500 z-50"
         )}
       >
         {/** pdf page navigation */}
@@ -158,37 +158,89 @@ const Preview = ({ url, open, setOpen, downloadButtonClassName }: Props) => {
           </div>
         )}
         <div className="flex gap-4 ">
-          <p
-            className="text-white cursor-pointer w-[56px] h-[56px] border border-white rounded-full flex justify-center items-center text-2xl"
-            onClick={() => setScale((prev) => Math.min(prev + 0.1, 2))}
-          >
-            <span className="icon-plus text-lg"></span>
-          </p>
-          <p
-            className="text-white cursor-pointer w-[56px] h-[56px] border border-white rounded-full flex justify-center items-center text-2xl"
+          <svg
+            className="cursor-pointer"
             onClick={() => setScale((prev) => Math.max(prev - 0.1, 0.5))}
+            xmlns="http://www.w3.org/2000/svg"
+            width="56"
+            height="56"
+            viewBox="0 0 56 56"
+            fill="none"
           >
-            <span className="icon-minus text-lg"></span>
-          </p>
+            <circle
+              cx="28.0001"
+              cy="28.0001"
+              r="23.3333"
+              stroke="white"
+              stroke-width="1.5"
+            />
+            <path
+              d="M35 28H21"
+              stroke="white"
+              stroke-width="1.5"
+              stroke-linecap="round"
+            />
+          </svg>
+          <svg
+            className="cursor-pointer"
+            onClick={() => setScale((prev) => Math.min(prev + 0.1, 2))}
+            xmlns="http://www.w3.org/2000/svg"
+            width="56"
+            height="56"
+            viewBox="0 0 56 56"
+            fill="none"
+          >
+            <circle
+              cx="28.0001"
+              cy="28.0001"
+              r="23.3333"
+              stroke="white"
+              stroke-width="1.5"
+            />
+            <path
+              d="M35 28.0001L28 28.0001M28 28.0001L21 28.0001M28 28.0001L28 21M28 28.0001L28 35"
+              stroke="white"
+              stroke-width="1.5"
+              stroke-linecap="round"
+            />
+          </svg>
         </div>
       </div>
       {/* close circle */}
       <p
         className={clsx(
-          "text-white cursor-pointer w-[56px] h-[56px] border border-white rounded-full flex justify-center items-center text-4xl fixed top-12 right-12 left transition-opacity duration-500"
+          " cursor-pointer w-[56px] h-[56px]  rounded-full flex justify-center items-center text-4xl fixed top-12 right-12 left transition-opacity duration-500"
         )}
       >
-        <span
+        <svg
           onClick={() => setOpen(false)}
-          className="icon-Close-Circle1"
-        ></span>
+          xmlns="http://www.w3.org/2000/svg"
+          width="56"
+          height="56"
+          viewBox="0 0 56 56"
+          fill="none"
+        >
+          <circle
+            cx="28.0001"
+            cy="28"
+            r="23.3333"
+            stroke="#E9EAEB"
+            stroke-width="1.5"
+          />
+          <path
+            d="M33.8331 22.1667L22.1665 33.8333M22.1665 22.1666L33.8331 33.8332"
+            stroke="#E9EAEB"
+            stroke-width="1.5"
+            stroke-linecap="round"
+          />
+        </svg>
       </p>
       {/* download button in preview */}
       <a
         href={url}
         download
         className={clsx(
-          "fixed top-12 left-12 flex py-4 px-6 items-center justify-center gap-2 border-[1px] border-primary-6 text-primary-6 bg-primary-14 rounded-lg cursor-pointer transition-opacity duration-500 outline-none",
+          "fixed top-12 left-12 flex py-4 px-6 items-center justify-center gap-2 border-[1px] border-black text-black bg-white rounded-lg cursor-pointer transition-opacity duration-500 outline-none",
           downloadButtonClassName
         )}
       >

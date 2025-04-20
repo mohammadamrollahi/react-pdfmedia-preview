@@ -7,7 +7,7 @@ type DialogProps = {
   open: boolean;
   setOpen: (val: boolean) => void;
   children: ReactNode;
-  className: string;
+  className?: string;
 };
 
 export const Dialog = ({ open, setOpen, children, className }: DialogProps) => {
