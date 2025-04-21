@@ -1,63 +1,64 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import clsx from "clsx";
-import { Document } from "react-pdf";
+import { Document, pdfjs } from "react-pdf";
 import { PageWithObserver } from "./PdfPreviewPageWithObserver";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 import { Dialog } from "../dialog/Dialog";
+
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+
 type Props = {
   url: string;
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   downloadButtonClassName?: string;
 };
-const Preview = ({ url, open, setOpen, downloadButtonClassName }: Props) => {
-  const [numPages, setNumPages] = useState(null);
-  const [visiblePages, setVisiblePages] = useState<object>({});
-  const [visiblePage, setVisiblePage] = useState<number>(1);
-  const pdfContainerRef = useRef<HTMLDivElement | null>(null);
-  const [scale, setScale] = useState<number>(1.0); // Zoom state
-  const isImage = ["png", "jpeg", "jfif", "jpg"].includes(
-    url?.split("?")[0].split(".").pop() as string
-  );
-  const handleOpen = () => setOpen(!open);
-  const [inputNumber, setInputNumber] = useState<number | "">("");
-  const pageRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
 
-  function onDocumentLoadSuccess({ numPages }) {
+export const ReactPreview = ({ url, open, setOpen, downloadButtonClassName }: Props) => {
+  const [numPages, setNumPages] = useState<number | null>(null);
+  const [visiblePages, setVisiblePages] = useState<Record<number, boolean>>({});
+  const [visiblePage, setVisiblePage] = useState<number>(1);
+  const [scale, setScale] = useState<number>(0.95);
+  const [inputNumber, setInputNumber] = useState<number | "">("");
+  const pdfContainerRef = useRef<HTMLDivElement | null>(null);
+  const pageRefs = useRef<Record<number, HTMLDivElement | null>>({});
+
+  const isImage = ["png", "jpeg", "jfif", "jpg"].includes(
+    url?.split("?")[0].split(".").pop()?.toLowerCase() || ""
+  );
+
+  const handleOpen = () => setOpen(!open);
+
+  const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
     setNumPages(numPages);
-  }
-  //set visible page
+  };
+
   const setPageVisibility = useCallback(
     (pageNumber: number, isIntersecting: boolean) => {
-      setVisiblePages((prevVisiblePages) => {
-        if (prevVisiblePages[pageNumber] === isIntersecting) {
-          return prevVisiblePages; // No change, no update
-        }
-        return {
-          ...prevVisiblePages,
-          [pageNumber]: isIntersecting,
-        };
+      setVisiblePages((prev) => {
+        if (prev[pageNumber] === isIntersecting) return prev;
+        return { ...prev, [pageNumber]: isIntersecting };
       });
     },
     []
   );
+
   useEffect(() => {
     const lastVisible = +(
       Object.entries(visiblePages)
-        .filter(([_, value]) => value)
+        .filter(([_, isVisible]) => isVisible)
         .at(-1)?.[0] ?? 0
     );
     if (lastVisible && lastVisible !== visiblePage) {
       setVisiblePage(lastVisible);
     }
   }, [visiblePages, visiblePage]);
+
   useEffect(() => {
     setInputNumber(visiblePage);
   }, [visiblePage]);
-  /** */
 
-  //scroll to page
   const scrollToPage = (pageNumber: number) => {
     const element = pageRefs.current[pageNumber];
     if (element && pdfContainerRef.current) {
@@ -71,6 +72,7 @@ const Preview = ({ url, open, setOpen, downloadButtonClassName }: Props) => {
       });
     }
   };
+
   const setPageRef = (pageNumber: number, el: HTMLDivElement | null) => {
     pageRefs.current[pageNumber] = el;
   };
@@ -79,16 +81,15 @@ const Preview = ({ url, open, setOpen, downloadButtonClassName }: Props) => {
     <Dialog
       open={open}
       setOpen={handleOpen}
-      className="!bg-transparent shadow-none flex justify-center items-center !m-0 max-h-screen overflow-hidden"
+      className="h-full overflow-scroll no-scrollbar !bg-transparent shadow-none flex justify-center items-center !m-0 max-h-screen !py-0"
     >
-      {/* <DialogBody className={clsx("p-0 h-screen no-scrollbar flex items-center justify-center")}> */}
       <>
         {isImage ? (
           <div className="w-[70vh] h-[70vh] flex justify-center items-center">
             <img
               src={url}
-              alt="Example Image"
-              className="object-contain max-w-[1000px] "
+              alt="Preview Image"
+              className="object-contain max-w-[1000px]"
               style={{ transform: `scale(${scale})` }}
             />
           </div>
@@ -102,7 +103,7 @@ const Preview = ({ url, open, setOpen, downloadButtonClassName }: Props) => {
               onLoadSuccess={onDocumentLoadSuccess}
               loading={<p className="p-2 text-white">در حال بارگذاری...</p>}
             >
-              {Array.from(new Array(numPages), (_, index) => (
+              {Array.from(new Array(numPages || 0), (_, index) => (
                 <PageWithObserver
                   key={`page_${index + 1}`}
                   pageNumber={index + 1}
@@ -115,17 +116,16 @@ const Preview = ({ url, open, setOpen, downloadButtonClassName }: Props) => {
           </div>
         )}
       </>
-      {/* </DialogBody> */}
-      {/* toolbar */}
+
+      {/* Toolbar */}
       <div
         className={clsx(
           isImage
             ? "w-[175px] right-[calc(50%-87.5px)]"
             : "right-[calc(50%-200px)] w-[400px]",
-          "fixed bottom-2  flex items-center bg-[#53586266] opacity-95  rounded-3xl  px-6 py-4 justify-between transition-opacity duration-500 z-50"
+          "fixed bottom-2 flex items-center bg-[#4d4d4dc4] opacity-95 rounded-3xl px-6 py-4 justify-between transition-opacity duration-500 z-50"
         )}
       >
-        {/** pdf page navigation */}
         {!isImage && (
           <div className="flex items-center">
             <p className="text-white text-[22px] mx-2 font-medium">صفحه</p>
@@ -141,46 +141,23 @@ const Preview = ({ url, open, setOpen, downloadButtonClassName }: Props) => {
                   setInputNumber(+val);
                 }
               }}
-              onKeyDown={(event) => {
-                if (event.key === "Enter" && typeof inputNumber === "number") {
-                  if (inputNumber > Number(numPages)) {
-                    setInputNumber(Number(numPages));
-                    scrollToPage(Number(numPages));
-                  }
-                  if (inputNumber >= 1 && inputNumber <= (numPages || 0)) {
-                    scrollToPage(inputNumber);
-                  }
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && typeof inputNumber === "number") {
+                  const target = Math.max(
+                    1,
+                    Math.min(inputNumber, numPages || 1)
+                  );
+                  scrollToPage(target);
+                  setInputNumber(target);
                 }
               }}
-              className="px-2 rounded font-medium text-[22px] bg-neutral-1 text-white w-[37px] h-10 outline-none text-center mx-2"
+              className="px-2 rounded font-medium text-[22px] bg-[#424040] text-white w-[37px] h-10 outline-none text-center mx-2"
             />
             <p className="text-white text-[22px] font-medium">/ {numPages}</p>
           </div>
         )}
-        <div className="flex gap-4 ">
-          <svg
-            className="cursor-pointer"
-            onClick={() => setScale((prev) => Math.max(prev - 0.1, 0.5))}
-            xmlns="http://www.w3.org/2000/svg"
-            width="56"
-            height="56"
-            viewBox="0 0 56 56"
-            fill="none"
-          >
-            <circle
-              cx="28.0001"
-              cy="28.0001"
-              r="23.3333"
-              stroke="white"
-              stroke-width="1.5"
-            />
-            <path
-              d="M35 28H21"
-              stroke="white"
-              stroke-width="1.5"
-              stroke-linecap="round"
-            />
-          </svg>
+        <div className="flex gap-3">
+          {/* Zoom In */}
           <svg
             className="cursor-pointer"
             onClick={() => setScale((prev) => Math.min(prev + 0.1, 2))}
@@ -191,50 +168,71 @@ const Preview = ({ url, open, setOpen, downloadButtonClassName }: Props) => {
             fill="none"
           >
             <circle
-              cx="28.0001"
-              cy="28.0001"
+              cx="28"
+              cy="28"
               r="23.3333"
               stroke="white"
-              stroke-width="1.5"
+              strokeWidth="1.5"
             />
             <path
-              d="M35 28.0001L28 28.0001M28 28.0001L21 28.0001M28 28.0001L28 21M28 28.0001L28 35"
+              d="M35 28H21M28 21V35"
               stroke="white"
-              stroke-width="1.5"
-              stroke-linecap="round"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+            />
+          </svg>
+          {/* Zoom Out */}
+          <svg
+            className="cursor-pointer"
+            onClick={() => setScale((prev) => Math.max(prev - 0.1, 0.5))}
+            xmlns="http://www.w3.org/2000/svg"
+            width="56"
+            height="56"
+            viewBox="0 0 56 56"
+            fill="none"
+          >
+            <circle
+              cx="28"
+              cy="28"
+              r="23.3333"
+              stroke="white"
+              strokeWidth="1.5"
+            />
+            <path
+              d="M35 28H21"
+              stroke="white"
+              strokeWidth="1.5"
+              strokeLinecap="round"
             />
           </svg>
         </div>
       </div>
-      {/* close circle */}
-      <p
-        className={clsx(
-          " cursor-pointer w-[56px] h-[56px]  rounded-full flex justify-center items-center text-4xl fixed top-12 right-12 left transition-opacity duration-500"
-        )}
+
+      {/** Close Circle */}
+      <svg
+        onClick={() => setOpen(false)}
+        className="fixed top-12 right-12 cursor-pointer"
+        xmlns="http://www.w3.org/2000/svg"
+        width="56"
+        height="56"
+        viewBox="0 0 56 56"
+        fill="none"
       >
-        <svg
-          onClick={() => setOpen(false)}
-          xmlns="http://www.w3.org/2000/svg"
-          width="56"
-          height="56"
-          viewBox="0 0 56 56"
-          fill="none"
-        >
-          <circle
-            cx="28.0001"
-            cy="28"
-            r="23.3333"
-            stroke="#E9EAEB"
-            stroke-width="1.5"
-          />
-          <path
-            d="M33.8331 22.1667L22.1665 33.8333M22.1665 22.1666L33.8331 33.8332"
-            stroke="#E9EAEB"
-            stroke-width="1.5"
-            stroke-linecap="round"
-          />
-        </svg>
-      </p>
+        <circle
+          cx="28"
+          cy="28"
+          r="23.3333"
+          stroke="#E9EAEB"
+          stroke-width="1.5"
+        />
+        <path
+          d="M33.8332 22.1667L22.1666 33.8333M22.1666 22.1666L33.8332 33.8332"
+          stroke="#E9EAEB"
+          stroke-width="1.5"
+          stroke-linecap="round"
+        />
+      </svg>
+      {/** */}
       {/* download button in preview */}
       <a
         href={url}
@@ -252,4 +250,3 @@ const Preview = ({ url, open, setOpen, downloadButtonClassName }: Props) => {
   );
 };
 
-export default Preview;

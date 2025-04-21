@@ -1,7 +1,7 @@
 // components/Dialog.tsx
 import clsx from "clsx";
 import { ReactNode, useEffect } from "react";
-import ReactDOM from "react-dom";
+import { createPortal } from 'react-dom';
 
 type DialogProps = {
   open: boolean;
@@ -21,9 +21,9 @@ export const Dialog = ({ open, setOpen, children, className }: DialogProps) => {
 
   if (!open) return null;
 
-  return ReactDOM.createPortal(
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+      className="fixed inset-0 z-50 flex  justify-center bg-black/40"
       onClick={() => setOpen(false)}
     >
       <div
