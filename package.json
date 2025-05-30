@@ -1,6 +1,6 @@
 {
   "name": "react-pdfmedia-preview",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "type": "module",
   "license": "MIT",
   "author":"Mohammad Amrollahi",
@@ -18,6 +18,10 @@
     "dist"
   ],
   "sideEffects": false,
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
   "scripts": {
     "rollup": "rollup -c --bundleConfigAsCjs",
     "dev": "vite",
