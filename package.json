@@ -1,13 +1,22 @@
 {
   "name": "react-pdfmedia-preview",
-  "version": "0.0.2",
+  "version": "0.0.1",
   "type": "module",
   "license": "MIT",
   "author":"Mohammad Amrollahi",
-  "main": "dist/index.js",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
-  "browser": "dist/index.mjs",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
   "sideEffects": false,
   "scripts": {
     "rollup": "rollup -c --bundleConfigAsCjs",
@@ -49,10 +58,5 @@
     "typescript-eslint": "^8.26.1",
     "vite": "^6.3.1",
     "vite-plugin-static-copy": "^2.3.1"
-  },
-  "files": [
-    "dist",
-    "src",
-    "!tsconfig.json"
-  ]
+  }
 }
