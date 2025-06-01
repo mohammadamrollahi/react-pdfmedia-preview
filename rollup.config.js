@@ -38,7 +38,7 @@ export default [
   {
     input: "src/index.ts",
     output: [{ file: pkg.types, format: "es" }],
-    plugins: [dts()],
+    plugins: [dts.default()],
     external: [/\.css$/],
   },
 ];
