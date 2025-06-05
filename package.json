@@ -1,12 +1,12 @@
 {
   "name": "react-pdfmedia-preview",
-  "version": "0.0.53",
+  "version": "0.0.54",
   "type": "module",
   "license": "MIT",
   "author": "Mohammad Amrollahi",
-  "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
   "style": "dist/styles.css",
   "exports": {
     ".": {
@@ -26,7 +26,9 @@
   "scripts": {
     "rollup": "rollup -c --bundleConfigAsCjs",
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build:css": "tailwindcss -i ./src/index.css -o ./dist/styles.css --minify",
+    "build:ts": "tsup src/index.tsx --dts --format esm,cjs --out-dir dist",
+    "build": "npm run build:css && npm run build:ts",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -45,6 +47,7 @@
     "rollup": "^4.40.2",
     "rollup-plugin-peer-deps-external": "^2.2.4",
     "rollup-plugin-postcss": "^4.0.2",
+    "tailwindcss": "^4.1.4",
     "tslib": "^2.8.1"
   },
   "devDependencies": {
@@ -63,8 +66,6 @@
     "globals": "^16.0.0",
     "rollup": "^4.40.0",
     "rollup-plugin-dts": "^6.2.1",
-    "tailwindcss": "^4.1.8",
-    "tsup": "^8.5.0",
     "typescript": "~5.7.2",
     "typescript-eslint": "^8.26.1",
     "vite": "^6.3.1",
