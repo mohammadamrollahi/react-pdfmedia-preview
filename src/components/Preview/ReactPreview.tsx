@@ -15,7 +15,12 @@ type Props = {
   downloadButtonClassName?: string;
 };
 
-export const ReactPreview = ({ url, open, setOpen, downloadButtonClassName }: Props) => {
+export const ReactPreview = ({
+  url,
+  open,
+  setOpen,
+  downloadButtonClassName,
+}: Props) => {
   const [numPages, setNumPages] = useState<number | null>(null);
   const [visiblePages, setVisiblePages] = useState<Record<number, boolean>>({});
   const [visiblePage, setVisiblePage] = useState<number>(1);
@@ -119,11 +124,12 @@ export const ReactPreview = ({ url, open, setOpen, downloadButtonClassName }: Pr
 
       {/* Toolbar */}
       <div
+        style={{ backgroundColor: "#4d4d4dc4", opacity: "95%" }}
         className={clsx(
           isImage
             ? "w-[175px] right-[calc(50%-87.5px)]"
             : "right-[calc(50%-200px)] w-[400px]",
-          "fixed bottom-2 flex items-center bg-[#4d4d4dc4] opacity-95 rounded-3xl px-6 py-4 justify-between transition-opacity duration-500 z-50"
+          "fixed bottom-2 flex items-center rounded-3xl px-6 py-4 justify-between transition-opacity duration-500 z-50"
         )}
       >
         {!isImage && (
@@ -249,4 +255,3 @@ export const ReactPreview = ({ url, open, setOpen, downloadButtonClassName }: Pr
     </Dialog>
   );
 };
-

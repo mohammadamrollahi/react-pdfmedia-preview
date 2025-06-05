@@ -23,7 +23,8 @@ export const Dialog = ({ open, setOpen, children, className }: DialogProps) => {
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex  justify-center bg-black/40"
+      style={{backgroundColor:"rgba(0, 0, 0, 0.4)",}}
+      className="fixed inset-0 z-50 flex  justify-center"
       onClick={() => setOpen(false)}
     >
       <div
