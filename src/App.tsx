@@ -1,14 +1,12 @@
 import { useState } from "react";
 import "./App.css";
-import {ReactPreview} from "./components/Preview/ReactPreview";
+import { ReactPreview } from "./components/Preview/ReactPreview";
 
 function App() {
   const [open, setOpen] = useState(false);
   return (
     <>
-      <button onClick={()=>setOpen(true)}>
-        open dialog
-      </button>
+      <button onClick={() => setOpen(true)}>open dialog</button>
       <ReactPreview
         open={open}
         setOpen={setOpen}
